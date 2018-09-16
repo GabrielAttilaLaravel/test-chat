@@ -17,7 +17,22 @@ Route::get('/', function () {
 
 Route::get('/chat', function () {
     return view('chat');
-});
+})->middleware('auth');
+
+Route::get('/messages', function (){
+    return App\Models\Message::with('user')->get();
+})->middleware('auth');
+
+Route::post('/messages', function (){
+    // Store the new message
+    $user = auth()->user();
+
+    $user->messages()->create([
+        'message' => request()->get('message')
+    ]);
+
+    return ['status' => 'OK'];
+})->middleware('auth');
 
 Auth::routes();
 

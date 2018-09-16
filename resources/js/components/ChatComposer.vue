@@ -17,7 +17,9 @@
             sendMessage() {
                 this.$emit('messagesent', {
                     message: this.messageText,
-                    user: 'GabrielAttila'
+                    user: {
+                        name: $('#navbarDropdown').text()
+                    }
                 });
                 this.messageText = '';
             }
