@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -18,6 +18,21 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <script>
+
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('f1d6f0a1242160feff18', {
+            cluster: 'us2',
+            forceTLS: true
+        });
+
+        var channel = pusher.subscribe('chatroom');
+        channel.bind('MessagePosted', function(data) {
+            alert(JSON.stringify(data));
+        });
+    </script>
 </head>
 <body>
     <div id="app">

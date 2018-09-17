@@ -27,9 +27,14 @@ Route::post('/messages', function (){
     // Store the new message
     $user = auth()->user();
 
-    $user->messages()->create([
+    $message = $user->messages()->create([
         'message' => request()->get('message')
     ]);
+
+    // Announce that a new message has been posted
+    //event(new \App\Events\MessagePosted($message, $user));
+    broadcast(new \App\Events\MessagePosted($message, $user))->toOthers();
+    //broadcast(new \App\Events\MessagePosted($message, $user));
 
     return ['status' => 'OK'];
 })->middleware('auth');
