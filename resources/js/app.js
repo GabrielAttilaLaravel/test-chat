@@ -29,6 +29,7 @@ const app = new Vue({
     },
     methods: {
         addMessage(message) {
+            console.log(message);
             //  Add to existing messages
             this.messages.push(message);
             // Persist to the database etc
@@ -37,7 +38,7 @@ const app = new Vue({
     },
     created() {
         axios.get('/messages').then(response => {
-            //console.log(response);
+            //console.log(response.data);
             this.messages = response.data;
         });
 
@@ -52,9 +53,10 @@ const app = new Vue({
                 this.usersInRoom = this.usersInRoom.filter(u => u != user);
             })
             .listen('MessagePosted', (e) => {
+                console.log(e);
                 this.messages.push({
                     message: e.message.message,
-                    user: e.user
+                    name: e.message.name
                 })
             });
     }

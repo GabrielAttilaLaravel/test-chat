@@ -2,38 +2,36 @@
 
 namespace App\Events;
 
-use App\Models\Message;
-use App\Models\User;
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Support\Facades\Redis;
 
 class MessagePosted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    /**
-     * @var Message
-     */
+
     public $message;
-    /**
-     * @var User
-     */
-    public $user;
+    private $id;
 
     /**
      * Create a new event instance.
-     *
-     * @param Message $message
-     * @param User $user
+     * @param  $message
      */
-    public function __construct(Message $message, User $user)
+    public function __construct($message, $id)
     {
-        $this->message = $message;
-        $this->user = $user;
+        $redis = Redis::connection();
+
+        $redis->hmset("messages", ['message'.$id => $message]);
+        $msn = json_decode($message);
+
+        $this->message = array_pop($msn);
+        $this->id = $id;
     }
 
     /**
