@@ -17,13 +17,17 @@ class MessagesController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return array
      */
     public function index()
     {
         $msn = $this->redis->hvals('messages');
+        $arr = array();
 
-        return json_decode($msn[0]);
+        for ($i = 0 ; $i < count($msn) ; $i++){
+            $arr[] = json_decode($msn[$i]);
+        }
+        return $arr;
     }
 
     /**
@@ -40,11 +44,15 @@ class MessagesController extends Controller
             'message' => $request['message']
         ]);
 
-        $msn = $message->join('users', 'users.id', 'messages.user_id')
+        /*$msn = $message->join('users', 'users.id', 'messages.user_id')
             ->select('messages.message','users.name')
-            ->get();
+            ->get();*/
 
-        $this->redis->hmset("messages", ['message'.$message->id => $msn]);
+        $msn = [
+            'message' => $message->message,
+            'name' => $user->name
+        ];
+        $this->redis->hmset("messages", ['message'.$message->id => json_encode($msn)]);
 
         broadcast(new MessagePosted($msn, $message->id))->toOthers();
 

@@ -29,7 +29,7 @@ const app = new Vue({
     },
     methods: {
         addMessage(message) {
-            console.log(message);
+            //console.log(message);
             //  Add to existing messages
             this.messages.push(message);
             // Persist to the database etc
@@ -53,7 +53,7 @@ const app = new Vue({
                 this.usersInRoom = this.usersInRoom.filter(u => u != user);
             })
             .listen('MessagePosted', (e) => {
-                console.log(e);
+                //console.log(e);
                 this.messages.push({
                     message: e.message.message,
                     name: e.message.name

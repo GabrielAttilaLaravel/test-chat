@@ -14336,7 +14336,7 @@ var app = new Vue({
     },
     methods: {
         addMessage: function addMessage(message) {
-            console.log(message);
+            //console.log(message);
             //  Add to existing messages
             this.messages.push(message);
             // Persist to the database etc
@@ -14360,7 +14360,7 @@ var app = new Vue({
                 return u != user;
             });
         }).listen('MessagePosted', function (e) {
-            console.log(e);
+            //console.log(e);
             _this.messages.push({
                 message: e.message.message,
                 name: e.message.name

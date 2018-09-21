@@ -27,10 +27,9 @@ class MessagePosted implements ShouldBroadcast
     {
         $redis = Redis::connection();
 
-        $redis->hmset("messages", ['message'.$id => $message]);
-        $msn = json_decode($message);
+        $redis->hmset("messages", ['message'.$id => json_encode($message)]);
 
-        $this->message = array_pop($msn);
+        $this->message = $message;
         $this->id = $id;
     }
 
