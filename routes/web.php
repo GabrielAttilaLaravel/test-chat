@@ -17,6 +17,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/redis', function () {
+    $redis = \Illuminate\Support\Facades\Redis::connection();
+
+    $msn = $redis->hvals('messages');
+
+    dd($msn);
+});
 
 Route::middleware('auth')->group(function () {
 
@@ -25,6 +32,7 @@ Route::middleware('auth')->group(function () {
     });
     Route::get('/messages', 'MessagesController@index');
     Route::post('/messages', 'MessagesController@store');
+    Route::post('/messages/file', 'MessagesController@file');
 });
 
 Route::get('/home', 'HomeController@index')->name('home');

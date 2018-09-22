@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\MessagePosted;
 use Illuminate\Http\Request;
+use App\Events\MessagePosted;
 use Illuminate\Support\Facades\Redis;
 
 class MessagesController extends Controller
 {
     public $redis;
+    public $imageLink;
+    public $imageLinkValue;
 
     public function __construct()
     {
         $this->redis = Redis::connection();
+        $this->imageLink = false;
+        $this->imageLinkValue = false;
     }
     /**
      * Display a listing of the resource.
@@ -25,7 +29,13 @@ class MessagesController extends Controller
         $arr = array();
 
         for ($i = 0 ; $i < count($msn) ; $i++){
-            $arr[] = json_decode($msn[$i]);
+            if (is_object(json_decode(json_decode($msn[$i])->message))){
+                $obj = json_decode($msn[$i]);
+                $obj->message = json_decode(json_decode($msn[$i])->message);
+                $arr[] = $obj;
+            }else{
+                $arr[] = json_decode($msn[$i]);
+            }
         }
         return $arr;
     }
@@ -40,22 +50,40 @@ class MessagesController extends Controller
     {
         $user = auth()->user();
 
+        if (is_array($request['message'])) {
+            $this->imageLink = true;
+            $this->imageLinkValue = $request['message'];
+            $messageText = json_encode($request['message']);
+        }else{
+            $messageText = $request['message'];
+        }
+
         $message = $user->messages()->create([
-            'message' => $request['message']
+            'message' => $messageText
         ]);
 
-        /*$msn = $message->join('users', 'users.id', 'messages.user_id')
-            ->select('messages.message','users.name')
-            ->get();*/
-
         $msn = [
-            'message' => $message->message,
-            'name' => $user->name
+            'message' => $messageText,
+            'name' => $user->name,
+            'imageLink' => $this->imageLink
         ];
+
         $this->redis->hmset("messages", ['message'.$message->id => json_encode($msn)]);
 
-        broadcast(new MessagePosted($msn, $message->id))->toOthers();
+        broadcast(new MessagePosted($msn, $message->id, $this->imageLinkValue))->toOthers();
 
         return ['status' => 'OK'];
+    }
+
+    public function file(Request $request)
+    {
+        if ($request->hasFile('file')) {
+            $url = $request->file->store('messages/file');
+            auth()->user()->messages()->create([
+                'message' => $url
+            ]);
+            return ['imageLink' => $url];
+        }
+        return ['status' => 'ERROR, image not found.'];
     }
 }

@@ -14360,10 +14360,11 @@ var app = new Vue({
                 return u != user;
             });
         }).listen('MessagePosted', function (e) {
-            //console.log(e);
+            console.log(e);
             _this.messages.push({
                 message: e.message.message,
-                name: e.message.name
+                name: e.message.name,
+                imageLink: e.message.imageLink
             });
         });
     }
@@ -57633,7 +57634,7 @@ exports = module.exports = __webpack_require__(4)(false);
 
 
 // module
-exports.push([module.i, "\n.chat-message[data-v-7812acf4] {\n    padding: 1rem;\n}\n.chat-message > p[data-v-7812acf4]{\n    margin-bottom: .5rem;\n}\n", ""]);
+exports.push([module.i, "\nimg[data-v-7812acf4] {\n    width: 50px;\n    height: 50px;\n}\n.chat-message[data-v-7812acf4] {\n    padding: 1rem;\n}\n.chat-message > p[data-v-7812acf4]{\n    margin-bottom: .5rem;\n}\nimg[data-v-7812acf4] {\n    display: block;\n}\n", ""]);
 
 // exports
 
@@ -57684,6 +57685,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     props: ['message']
@@ -57698,7 +57702,28 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("p", [_vm._v(_vm._s(_vm.message.message))]),
+    _vm.message.imageLink
+      ? _c(
+          "a",
+          {
+            attrs: {
+              target: "_blank",
+              href:
+                "http://127.0.0.1:8000/defaults/" +
+                _vm.message.message.imageLink
+            }
+          },
+          [
+            _c("img", {
+              attrs: {
+                src:
+                  "http://127.0.0.1:8000/defaults/" +
+                  _vm.message.message.imageLink
+              }
+            })
+          ]
+        )
+      : _c("p", [_vm._v(_vm._s(_vm.message.message))]),
     _vm._v(" "),
     _c("small", [_vm._v(_vm._s(_vm.message.name))])
   ])
@@ -57978,11 +58003,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            messageText: ''
+            messageText: '',
+            imagen: null
         };
     },
 
@@ -57993,6 +58022,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 name: $('#navbarDropdown').text()
             });
             this.messageText = '';
+        },
+        fileUpload: function fileUpload(event) {
+            var _this = this;
+
+            var data = new FormData();
+            data.append('file', event.target.files[0]);
+            data.append('_method', 'POST');
+            axios.post('/messages/file', data).then(function (response) {
+                //console.log(response.data);
+                _this.$emit('messagesent', {
+                    message: response.data,
+                    name: $('#navbarDropdown').text(),
+                    imageLink: true
+                });
+            });
+            this.imagen = null;
         }
     }
 });
@@ -58040,6 +58085,15 @@ var render = function() {
       "button",
       { staticClass: "btn btn-primary", on: { click: _vm.sendMessage } },
       [_vm._v("Send")]
+    ),
+    _vm._v(" "),
+    _c(
+      "form",
+      {
+        attrs: { method: "POST", enctype: "multipart/form-data" },
+        on: { change: _vm.fileUpload }
+      },
+      [_c("input", { attrs: { type: "file", name: "file" } })]
     )
   ])
 }

@@ -17,20 +17,26 @@ class MessagePosted implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
-    private $id;
+    public $id;
+    public $imageLink;
 
     /**
      * Create a new event instance.
      * @param  $message
      */
-    public function __construct($message, $id)
+    public function __construct($message, $id, $imageLink)
     {
         $redis = Redis::connection();
 
         $redis->hmset("messages", ['message'.$id => json_encode($message)]);
 
+        if (is_array($imageLink)) {
+            $message['message'] = $imageLink;
+        }
+
         $this->message = $message;
         $this->id = $id;
+        $this->imageLink = $imageLink;
     }
 
     /**

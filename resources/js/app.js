@@ -25,7 +25,7 @@ const app = new Vue({
     el: '#app',
     data: {
         messages: [],
-        usersInRoom: []
+        usersInRoom: [],
     },
     methods: {
         addMessage(message) {
@@ -53,10 +53,11 @@ const app = new Vue({
                 this.usersInRoom = this.usersInRoom.filter(u => u != user);
             })
             .listen('MessagePosted', (e) => {
-                //console.log(e);
+                console.log(e);
                 this.messages.push({
                     message: e.message.message,
-                    name: e.message.name
+                    name: e.message.name,
+                    imageLink: e.message.imageLink,
                 })
             });
     }

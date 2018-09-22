@@ -3,6 +3,9 @@
         <input type="text" placeholder="Start typing your message..." v-model="messageText"
         @keyup.enter="sendMessage">
         <button class="btn btn-primary" @click="sendMessage">Send</button>
+        <form @change="fileUpload" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file"  >
+        </form>
     </div>
 </template>
 
@@ -10,7 +13,8 @@
     export default {
         data() {
             return {
-                messageText: ''
+                messageText: '',
+                imagen: null,
             }
         },
         methods: {
@@ -20,6 +24,23 @@
                     name: $('#navbarDropdown').text()
                 });
                 this.messageText = '';
+            },
+
+            fileUpload(event){
+                var data = new  FormData();
+                data.append('file', event.target.files[0]);
+                data.append('_method', 'POST');
+                axios.post('/messages/file',data)
+                    .then(response => {
+                        //console.log(response.data);
+                        this.$emit('messagesent', {
+                            message: response.data,
+                            name: $('#navbarDropdown').text(),
+                            imageLink: true
+                        });
+
+                    })
+                this.imagen = null;
             }
         }
     }
